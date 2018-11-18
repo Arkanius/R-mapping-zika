@@ -1,17 +1,17 @@
 setwd("~/Documents/dsa/RFundamentos/miniprojeto5")
 getwd()
 
+# Reading files
 files <- list.files(pattern = '.csv')
 files
 
-# Reading files
 files <- lapply(files, read.csv)
-files
 head(files[1])
 
 
 # Separating by regions
 library(dplyr)
+library(ggplot2)
 df <- do.call(rbind, files)
 class(df)
 str(df)
@@ -28,10 +28,25 @@ head(casesByRegions)
 str(casesByRegions)
 class(casesByRegions)
 
-# Histogram
-hist(casesByRegions$value)
+ggplot(data=casesByRegions, aes(x = casesByRegions$location, y = casesByRegions$value)) + 
+geom_bar(stat = "identity") +
+ylab("Número de Casos Reportados") +
+xlab("Região") +
+ggtitle("Casos de Zika Reportados no Brasil")
 
-# Pie Graph
-pie(casesByRegions$value, labels = casesByRegions$location,
-    col = c("darksalmon", "gainsboro", "lemonchiffon4", "peachpuff1", "paleturquoise1"), 
-    main ="Dsitribuição de Ocorrências")
+# Graph 2 - dispersion graph, relating the increased number of cases reported
+# and the month
+
+casesByDate <- select(df, report_date, value, location_type, location) %>% 
+  filter(location_type == "region") %>%
+  group_by(location) 
+
+head(casesByDate, 10)
+
+
+ggplot(data=casesByDate, aes(x = report_date, y = value,  colour = location, group = location)) +
+  geom_point() +
+  geom_line() +
+  ylab("Número de Casos Reportados") +
+  xlab("Mês") +
+  ggtitle("Casos de Zika Reportados no Brasil - Mês a mês")
